@@ -1,0 +1,102 @@
+Exam 2021							Viljoen AM, 30257506
+
+a) 
+
+select Composer, Title, count(*) as NrTracks 
+from album a, track t
+where a.AlbumId = t.AlbumId 
+group by a.AlbumId 
+order by NrTracks desc 
+limit 1;
++--------------------------+---------------+----------+
+| Composer                 | Title         | NrTracks |
++--------------------------+---------------+----------+
+| Craig Ross/Lenny Kravitz | Greatest Hits |       57 |
++--------------------------+---------------+----------+
+1 row in set (0.007 sec)
+
+
+b)
+select Name,count(*) as NrAlbums 
+from album al, artist ar
+where al.ArtistId = ar.ArtistId
+group by al.ArtistId 
+order by NrAlbums desc 
+limit 1;
++-------------+----------+
+| Name        | NrAlbums |
++-------------+----------+
+| Iron Maiden |       21 |
++-------------+----------+
+1 row in set (0.001 sec)
+
+
+c)
+select g.Name, sum(Milliseconds) as TotalPlayTime
+from genre g, track t 
+where g.GenreId = t.GenreId
+group by g.Name
+order by TotalPlayTime desc
+limit 1;
++------+---------------+
+| Name | TotalPlayTime |
++------+---------------+
+| Rock |     368231326 |
++------+---------------+
+1 row in set (0.008 sec)
+
+d)
+select i.InvoiceId, i.CustomerID, i.Total as Charged, t.ILTotal as ShouldHaveBeen 
+from invoice i,
+(select InvoiceId, sum(UnitPrice) as ILTotal 
+from invoiceline
+group by InvoiceId) as t
+where i.InvoiceId = t.InvoiceId
+and (t.ILTotal < i.Total);
++-----------+------------+---------+----------------+
+| InvoiceId | CustomerID | Charged | ShouldHaveBeen |
++-----------+------------+---------+----------------+
+|         5 |         23 |   20.00 |          13.86 |
++-----------+------------+---------+----------------+
+1 row in set (0.006 sec)
+
+
+e)
+select LastName, FirstName, Title 
+from employee e,
+(select ReportsTo, count(*) as Underlings
+from employee
+group by ReportsTo
+order by Underlings desc 
+limit 1) as t
+where e.EmployeeID = t.ReportsTo; 
++----------+-----------+---------------+
+| LastName | FirstName | Title         |
++----------+-----------+---------------+
+| Edwards  | Nancy     | Sales Manager |
++----------+-----------+---------------+
+1 row in set (0.001 sec)
+
+
+f)
+select LastName, FirstName, RepTotalInv
+from employee e,
+(select SupportRepId, sum(CustPurch) as RepTotalInv
+from customer c,(select CustomerID,sum(Total) as CustPurch
+from invoice 
+group by CustomerID) as t
+where c.CustomerID = t.CustomerID
+group by SupportRepId) as b
+where b.SupportRepId = e.EmployeeId;
++----------+-----------+-------------+
+| LastName | FirstName | RepTotalInv |
++----------+-----------+-------------+
+| Peacock  | Jane      |      833.04 |
+| Park     | Margaret  |      781.54 |
+| Johnson  | Steve     |      720.16 |
++----------+-----------+-------------+
+3 rows in set (0.001 sec)
+
+
+
+
